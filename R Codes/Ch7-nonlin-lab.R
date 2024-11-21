@@ -8,6 +8,52 @@ attach(Wage)
 ## Polynomial Regression and Step Functions ----
 
 ###
+set.seed(11)
+x1 = seq(1,3,length=100)
+y1 = (x1-4)*(x1-2)*(x1-3)+ rnorm(100,sd=2)
+x2 = seq(3,7,length=200)
+y2=4-(x2-3)*(x2-5)*(x2-8) + rnorm(200,sd=2)
+x=c(x1,x2)
+y=c(y1,y2)
+SimulatedData2 = data.frame(x,y)
+head(SimulatedData2)
+plot(x,y)
+
+# Piecewise Cubic (Discontinuous)
+model1 = lm(y ~ x+I(x^2)+I(x^3) , data=subset(SimulatedData2, x<=3))
+pred1 = predict(model1)
+model2 = lm(y ~ x+I(x^2)+I(x^3) , data=subset(SimulatedData2, x>3))
+pred2 = predict(model2)
+
+title.graph = c("Continuous Fit at the Knot",
+                "Continuous Fit and 1st Der",
+                "Continuous Fit, 1st and 2nd Der"
+)
+par(mfrow=c(2,2))
+plot(y~x , cex.lab=1.5 , cex.axis=1.5 , data=SimulatedData2,
+     main="discontinuous fit at the knot",
+     col = adjustcolor("black",0.6) , pch=16 , cex=0.5)
+abline(v=3 , lwd=1 , lty=3)
+lines(pred1~SimulatedData2$x[SimulatedData2$x<=3] , lwd=2 , col="blue")
+lines(pred2~SimulatedData2$x[SimulatedData2$x>3] , lwd=2, col="blue")
+for(i in 1:3){
+  SimulatedData2$D = ((SimulatedData2$x-3)^i)*(SimulatedData2$x>3)
+  plot(y~x , cex.lab=1.5 , cex.axis=1.5 , data=SimulatedData2,
+       col = adjustcolor("black",0.6) , pch=16 , cex=0.5,
+       main = title.graph[i])
+  abline(v=3 , lwd=1 , lty=3)
+  model3 = lm(y ~ x+I(x^2)+I(x^3)+D , data=SimulatedData2)
+  pred3 = predict(model3)
+  lines(pred3~SimulatedData2$x , lwd=2, col="blue")
+}
+
+#poly(x,3) uses orthogonal polynomials
+model2 = lm(y ~ poly(x,3),data=SimulatedData2)
+summary(model2)
+pred2 = predict(model2)
+head(predict(model2))
+
+###
 fit <- lm(wage ~ poly(age, 4), data = Wage)
 coef(summary(fit))
 
