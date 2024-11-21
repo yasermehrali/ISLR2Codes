@@ -264,6 +264,21 @@ plot_glmnet(lasso.mod,xvar="lambda")
 plot_glmnet(lasso.mod,xvar="norm")
 plot_glmnet(lasso.mod,xvar="dev")
 
+# The Elastic Net ----------------------------
+
+Elnet.mod=glmnet(x[train,],y[train],alpha=0.6,lambda=grid)
+#plot(Elnet.mod)
+set.seed(1)
+cv.out=cv.glmnet(x[train,],y[train],alpha=0.6)
+plot(cv.out)
+bestlam=cv.out$lambda.min
+Elnet.pred=predict(Elnet.mod,s=bestlam,newx=x[test,])
+mean((Elnet.pred-y.test)^2)
+out=glmnet(x,y,alpha=0.6,lambda=grid)
+Elnet.coef=predict(out,type="coefficients",s=bestlam)[1:20,]
+Elnet.coef
+Elnet.coef[Elnet.coef!=0]
+
 ## PCR and PLS Regression -------------------
 
 
